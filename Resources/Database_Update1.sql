@@ -14,17 +14,17 @@ create table Hotel(
 
 
 create table Customer(
-	customer_id varchar(50) not null,
+	customer_id int not null,
 	customer_name varchar(100) not null,
-	customer_mobile varchar(20),
+	customer_mobile int,
 	customer_email varchar(100),
 	constraint PK_CustomerID Primary key (customer_id)
 );
 
 
 create table Room(
-	room_id varchar(50) not null,
 	hotel_id varchar(50) not null,
+	room_id int not null,
 	room_number varchar(50) not null,
 	room_type varchar(50),
 	room_status binary,
@@ -34,10 +34,10 @@ create table Room(
 );
 
 create table Booking(
-	booking_id varchar(50) not null,
-	room_id varchar(50) not null,
 	hotel_id varchar(50) not null,
-	customer_id varchar(50) not null,
+	booking_id int not null,
+	room_id int not null,
+	customer_id int not null,
 	checkin_date date,
 	checkout_date date,
 	booking_type binary,
