@@ -50,5 +50,48 @@ create table Booking_Attributes(
 );
 
 
+--insert hotel:
+
+CREATE PROCEDURE isHotel
+	@hotelid varchar(50),
+	@hotelname varchar(100),
+	@hoteltype float,
+	@hoteldescription varchar(max),
+	@hotellocation varchar(max),
+	@hotelbudget float
+as
+begin
+	insert into [DBL_M01].[DISTRICT01].[dbo].[Hotel_Attributes]
+	values (@hotelid, @hotelname,@hoteltype, @hoteldescription, @hotellocation, @hotelbudget)
+begin
+	if @hotelbudget >=100000
+		insert into [DBL_M02].[DISTRICT02].[dbo].[Hotel_Attributes]
+		values (@hotelid, @hotelname,@hoteltype, @hoteldescription, @hotellocation, @hotelbudget)
+begin
+	if @hotellocation ='District 1'
+		insert into [DBL_M03].[DISTRICT03].[dbo].[Hotel_Attributes]
+		values (@hotelid, @hotelname,@hoteltype, @hoteldescription, @hotellocation, @hotelbudget)
+end
+end
+end
+
+--insert booking
+create procedure isBooking
+	@bookingid varchar(50),
+	@roomid varchar(50),
+	@hotelid varchar(50),
+	@customerid varchar(50),
+	@checkindate datetime,
+	@checkoutdate datetime,
+	@bookingtype varchar(50),
+	@bookingdescription varchar(max),
+	@totalprice float
+as 
+declare @dem varchar
+begin 
+	insert into 
+	
+
+
 
 
