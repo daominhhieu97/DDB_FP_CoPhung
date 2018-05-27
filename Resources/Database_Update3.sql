@@ -1,3 +1,6 @@
+create database bhv_hotelchain
+use bhv_hotelchain
+
 -- drop table Hotel
 -- drop table Customer
 -- drop table Room
@@ -30,7 +33,7 @@ create table Room(
 	room_status numeric,
 	room_price float,
 	constraint PK_RoomID Primary key (room_id),
-	constraint FK_Room_HotelID Foreign key (hotel_id) references Hotel (hotel_id)
+	--constraint FK_Room_HotelID Foreign key (hotel_id) references Hotel (hotel_id)
 );
 
 create table Booking(
@@ -44,157 +47,194 @@ create table Booking(
 	total_payment float,
 	constraint PK_BookingID Primary key (booking_id),
 	constraint FK_Booking_RoomID Foreign key (room_id) references Room (room_id),
-	constraint FK_Booking_HotelID Foreign key (hotel_id) references Hotel (hotel_id),
+	--constraint FK_Booking_HotelID Foreign key (hotel_id) references Hotel (hotel_id),
 	constraint FK_Booking_CustomerID Foreign key (customer_id) references Customer (customer_id)
 );
 
 --add cus 
---create procedure addCus
---	@id int,
---	@name varchar(100),
---	@mobile int,
---	@email varchar(100)
---as
---begin 
---	insert into Customer values (@id, @name, @mobile, @email)
---end
-
-----add room
---create procedure addRoom
---	@hotel_id varchar(50),
---	@room_id int,
---	@number varchar(50),
---	@type varchar(50),
---	@status numeric,
---	@price float
-
---as
---begin
---	if (@room_id <600 and @price=100) 
---		insert into [Bao].[Hotel_chain].[dbo].[Room] values (@hotel_id
---															,@room_id	 
---															,@number
---															,@type
---															,@status
---															,@price)
---begin 
---	if (@room_id >= 600 and @room_id<900 and @price =200)
---		insert into [Viet].[Hotel_chain].[dbo].[Room] values (@hotel_id
---															,@room_id	 
---															,@number
---															,@type
---															,@status
---															,@price)
---begin 
---	if (@room_id >900 and @price=300)
---		insert into [Hieu].[Hotel_chain].[dbo].[Room] values (@hotel_id
---															,@room_id	 
---															,@number
---															,@type
---															,@status
---															,@price)
---end
---end 
---end
+drop procedure addCus
+create procedure addCus
+	@id int,
+	@name varchar(100),
+	@mobile int,
+	@email varchar(100)
+as
+begin 
+	insert into Customer values (@id, @name, @mobile, @email)
+end
+exec addCus '0000004', 'Huynh Yen Nhi', '15521009', 'hynhi@gmail.com'
 
 
-----add booking 
+--update cus:
+drop procedure update_Cus
+create procedure update_Cus
+	@id int,
+	@name varchar(100),
+	@mobile int,
+	@email varchar(100)
+as
+begin 
+	update Customer  set 
+	customer_name =@name,
+	customer_mobile= @mobile,
+	customer_email =@email
+	where customer_id = @id
+end
+EXEC update_Cus '0000004', 'Huynh Yen Nhi', '15521596', 'hynhi@gmail.com'
 
---create procedure addBooking
---	@hotelid varchar(50),
---	@bookingid int,
---	@roomid int,
---	@customerid int,
---	@checkindate date,
---	@checkoutdate date,
---	@bookingtype numeric,
---	@totalpayment float
---as 
---begin
---	if (@bookingid <50000 and @roomid <600)
---		insert into [Bao].[Hotel_chain].[dbo].[Booking] values (@hotelid
---																, @bookingid
---																, @roomid
---																, @customerid
---																, @checkindate
---																, @checkoutdate
---																, @bookingtype
---																, @totalpayment)
+--add room
+create procedure addRoom
+	@hotel_id varchar(50),
+	@room_id int,
+	@number varchar(50),
+	@type varchar(50),
+	@status numeric,
+	@price float
 
---begin
---	if (50000<=@bookingid and @bookingid <90000 and @roomid >=600 and @roomid <900)
---		insert into [Viet].[Hotel_chain].[dbo].[Booking] values (@hotelid
---																, @bookingid
---																, @roomid
---																, @customerid
---																, @checkindate
---																, @checkoutdate
---																, @bookingtype
---																, @totalpayment)
---begin 
---	if (@bookingid >90000 and @roomid >=900)
---		insert into [Hieu].[Hotel_chain].[dbo].[Booking] values (@hotelid
---																, @bookingid
---																, @roomid
---																, @customerid
---																, @checkindate
---																, @checkoutdate
---																, @bookingtype
---																, @totalpayment)
+as
+begin
+	if (@room_id <600 and @price=100) 
+		insert into [Bao].[Hotel_chain].[dbo].[Room] values (@hotel_id
+															,@room_id	 
+															,@number
+															,@type
+															,@status
+															,@price)
+begin 
+	if (@room_id >= 600 and @room_id<900 and @price =200)
+		insert into [Viet].[Hotel_chain].[dbo].[Room] values (@hotel_id
+															,@room_id	 
+															,@number
+															,@type
+															,@status
+															,@price)
+begin 
+	if (@room_id >900 and @price=300)
+		insert into [Hieu].[Hotel_chain].[dbo].[Room] values (@hotel_id
+															,@room_id	 
+															,@number
+															,@type
+															,@status
+															,@price)
+end
+end 
+end
 
---end 
---end 
---end 
-----check booking
 
---create procedure action_booking
---	@roomStatus binary,
---	@hotelid varchar(50),
---	@bookingid int,
---	@roomid int,
---	@customerid int,
---	@checkindate date,
---	@checkoutdate date,
---	@bookingtype numeric,
---	@totalpayment float
---as 
---declare @check int 
---select @check = count (room_status) from Room where room_status =@roomStatus
---if (@check=1)
---		insert into Booking values (@hotelid
---									, @bookingid
---									, @roomid
---									, @customerid
---									, @checkindate
---									, @checkoutdate
---									, @bookingtype
---									, @totalpayment)															
---else 
---	begin 
---	print 'This room is not available'
---	end 
+--add booking 
+
+create procedure addBooking
+	@hotelid varchar(50),
+	@bookingid int,
+	@roomid int,
+	@customerid int,
+	@checkindate date,
+	@checkoutdate date,
+	@bookingtype numeric,
+	@totalpayment float
+as 
+begin
+	if (@bookingid <50000 and @roomid <600)
+		insert into [Bao].[Hotel_chain].[dbo].[Booking] values (@hotelid
+																, @bookingid
+																, @roomid
+																, @customerid
+																, @checkindate
+																, @checkoutdate
+																, @bookingtype
+																, @totalpayment)
+
+begin
+	if (50000<=@bookingid and @bookingid <90000 and @roomid >=600 and @roomid <900)
+		insert into [Viet].[Hotel_chain].[dbo].[Booking] values (@hotelid
+																, @bookingid
+																, @roomid
+																, @customerid
+																, @checkindate
+																, @checkoutdate
+																, @bookingtype
+																, @totalpayment)
+begin 
+	if (@bookingid >90000 and @roomid >=900)
+		insert into [Hieu].[Hotel_chain].[dbo].[Booking] values (@hotelid
+																, @bookingid
+																, @roomid
+																, @customerid
+																, @checkindate
+																, @checkoutdate
+																, @bookingtype
+																, @totalpayment)
+
+end 
+end 
+end 
+--check booking
+
+create procedure action_booking
+	@roomStatus binary,
+	@hotelid varchar(50),
+	@bookingid int,
+	@roomid int,
+	@customerid int,
+	@checkindate date,
+	@checkoutdate date,
+	@bookingtype numeric,
+	@totalpayment float
+as 
+declare @check int 
+select @check = count (room_status) from Room where room_status =@roomStatus
+if (@check=1)
+		insert into Booking values (@hotelid
+									, @bookingid
+									, @roomid
+									, @customerid
+									, @checkindate
+									, @checkoutdate
+									, @bookingtype
+									, @totalpayment)															
+else 
+	begin 
+	print 'This room is not available'
+	end 
+--update room 
+create procedure Update_room 
+	@hotel_id varchar(50),
+	@room_id int,
+	@number varchar(50),
+	@type varchar(50),
+	@status numeric,
+	@price float
+as
+begin 
+	update Room set
+	hotel_id =@hotel_id,
+	room_id= @room_id,
+	room_number= @number, 
+	room_type= @type, 
+	room_status = @status, 
+	room_price = @price
+	where room_id = @room_id
 
 		
-----payment 
+--payment 
 
---create procedure Pay 
---	@hotelid varchar(50),
---	@bookingid int,
---	@roomid int,
---	@customerid int,
---	@checkindate date,
---	@checkoutdate date,
---	@bookingtype numeric,
---	@totalpayment float
-
---as
---begin
---	update Booking
---	set total_payment  = (@checkoutdate-@checkindate)* (select R.room_price from Room R join 
---															  Booking B on R.room_id = B.room_id) 
---	update Room
---	set room_status =1
---end
+create procedure Pay 
+	@hotelid varchar(50),
+	@bookingid int,
+	@roomid int,
+	@customerid int,
+	@checkindate date,
+	@checkoutdate date,
+	@bookingtype numeric,
+	@totalpayment float
+as
+begin
+	update Booking
+	set total_payment  = (@checkoutdate-@checkindate)* (select R.room_price from Room R join 
+															  Booking B on R.room_id = B.room_id) 
+	update Room
+	set room_status =1
+end
 	
 
 -- insert values into table Hotel.
@@ -276,3 +316,10 @@ insert into Booking (booking_id, room_id, hotel_id, customer_id, checkin_date, c
 	values ('050000', '0602', '050', '0000002', '05-26-2018', '06-01-2018', '1', '');
 insert into Booking (booking_id, room_id, hotel_id, customer_id, checkin_date, checkout_date, booking_type, total_payment)
 	values ('090000', '0902', '075', '0000003', '05-26-2018', '05-28-2018', '1', '');
+
+
+select * from hotel
+
+select *from Booking
+
+select * from Customer
