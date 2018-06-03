@@ -211,7 +211,9 @@ create procedure addBooking
 	@totalpayment float
 as
 begin
-		insert into [dbo].[Booking] values (@hotelid
+		if @hotel_id like 'VN%'
+		begin  
+		insert into [dbo].[Hotel] values (@hotelid
 																, @bookingid
 																, @roomid
 																, @customerid
@@ -219,10 +221,36 @@ begin
 																, @checkoutdate
 																, @bookingtype
 																, @totalpayment)
+		end
+ 
+	else if @hotel_id  like 'US%'
+	begin
+		insert into [VIET].[bhv_hotelchain].[dbo].[Hotel] values (@hotelid
+																, @bookingid
+																, @roomid
+																, @customerid
+																, @checkindate
+																, @checkoutdate
+																, @bookingtype
+																, @totalpayment)
+	end
+ 
+	else if @hotel_id like 'UK%'
+		begin 
+		insert into [HIEU].[bhv_hotelchain].[dbo].[Hotel] values (@hotelid
+																, @bookingid
+																, @roomid
+																, @customerid
+																, @checkindate
+																, @checkoutdate
+																, @bookingtype
+																, @totalpayment)
+		end
+end 
 	update Room
 	set room_status = 0
 end 
-
+ exec 
 
 --check booking
 drop procedure action_booking
@@ -239,7 +267,7 @@ create procedure action_booking
 as 
 begin
 	declare @check int 
-	select @check= Room_status from [bhv_hotelchain].Room where @roomid = Room.room_id
+	select @check= Room_status from [dbo].[Room] where @roomid = Room.room_id
 	if (@check=1)
 			exec addBooking @hotelid, @bookingid, @roomid, @customerid,
 		@checkindate ,
@@ -257,7 +285,7 @@ end
 --payment 
 drop procedure Pay
 
-create procedure Pay 
+create procedure Pay
 	@hotelid varchar(50),
 	@bookingid int,
 	@roomid varchar(50),
@@ -275,3 +303,42 @@ begin
 	set room_status = 1
 end
 
+
+
+--insert values:
+
+--insert values for table Hotel
+
+insert into Hotel (hotel_id, hotel_name, hotel_type, hotel_location)
+	values ('VN_HCM', 'New World', '5', 'VN')
+insert into Hotel (hotel_id, hotel_name, hotel_type, hotel_location)
+	values ('US_NY', 'Continental', '4', 'US')
+insert into Hotel (hotel_id, hotel_name, hotel_type, hotel_location)
+	values ('UK_LD', 'Lotte Legend Hotel', '3', 'UK')
+
+--insert values for table Customer
+
+insert into Customer (customer_id, customer_name, customer_mobile, customer_email)
+	values('1111111', 'Hoang Trong Viet', '15521009', 'htviet@gmail.com')
+insert into Customer (customer_id, customer_name, customer_mobile, customer_email)
+	values('2222222', 'Tran Gia Bao', '15520044', 'tgbao@gmail.com')
+insert into Customer (customer_id, customer_name, customer_mobile, customer_email)
+	values('3333333', 'Dao Minh Hieu', '15520249', 'dmhieu@gmail.com')
+
+--insert values for table Room
+
+insert into Room (hotel_id, room_id, room_type, room_status, room_price)
+	values ('VN_HCM', 'VN_HCM_001', 'normal', '1', '100')
+insert into Room (hotel_id, room_id, room_type, room_status, room_price)
+	values ('US_NY', 'US_NY_601', 'business', '1', '200')
+insert into Room (hotel_id, room_id, room_type, room_status, room_price)
+	values ('UK_LD', 'UK_LD_901', 'VIP', '1', '300')
+
+--insert values for table Booking
+
+insert into Booking (hotel_id, customer_id, room_id, booking_id, checkin_date, checkout_date, booking_type, total_payment)
+	values ('VN_HCM', '1111111', 'VN_HCM_001', '000000001', '05-31-2015', '06-06-2018', '')
+insert into Booking (hotel_id, customer_id, room_id, booking_id, checkin_date, checkout_date, booking_type, total_payment)
+	values ('US_NY', '2222222', 'US_NY_601', '000000002', '05-31-2015', '06-02-2018', '')
+insert into Booking (hotel_id, customer_id, room_id, booking_id, checkin_date, checkout_date, booking_type, total_payment)
+	values ('UK_LD', '3333333', 'UK_LD_001', '000000003', '05-31-2015', '06-05-2018', '')
