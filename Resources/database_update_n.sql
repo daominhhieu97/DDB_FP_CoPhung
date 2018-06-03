@@ -59,7 +59,7 @@ create procedure addHotel
 	@hotel_location varchar(max)
 as 
 begin
-if @hotel_location ='VN%'
+if @hotel_location ='VN'
 		begin  
 		insert into [dbo].[Hotel] values (@hotel_id
 															,@hotel_name
@@ -146,7 +146,7 @@ create procedure addRoom
 	@price float
 as
 begin
-	if @hotel_id ='VN%'
+	if @hotel_id LIKE 'VN%'
 		begin  
 		insert into [dbo].[Room] values (@hotel_id
 															,@room_id
@@ -155,7 +155,7 @@ begin
 															,@price)
 		end
  
-	else if @hotel_id ='US'
+	else if @hotel_id LIKE 'US%'
 	begin
 		insert into [VIET].[bhv_hotelchain].[dbo].[Room] values (@hotel_id
 															,@room_id
@@ -164,7 +164,7 @@ begin
 															,@price)
 	end
  
-	else if @hotel_id = 'UK'
+	else if @hotel_id LIKE 'UK%'
 		begin 
 		insert into [HIEU].[bhv_hotelchain].[dbo].[Room] values (@hotel_id
 															,@room_id
@@ -221,6 +221,10 @@ begin
 																, @checkoutdate
 																, @bookingtype
 																, @totalpayment)
+		update dbo.Room
+			set room_status = 0
+			where Room.roomid = @roomid 
+			
 		end
  
 	else if @hotel_id  like 'US%'
@@ -233,6 +237,9 @@ begin
 																, @checkoutdate
 																, @bookingtype
 																, @totalpayment)
+		update [VIET].[bhv_hotelchain].dbo.Room
+			set room_status = 0			
+			where Room.room_id = @roomid
 	end
  
 	else if @hotel_id like 'UK%'
@@ -245,10 +252,12 @@ begin
 																, @checkoutdate
 																, @bookingtype
 																, @totalpayment)
+		update [HIEU].[bhv_hotelchain].dbo.Room
+			set room_status = 0			
+			where Room.room_id = @roomid														
 		end
 end 
-	update Room
-	set room_status = 0
+	
 end 
  exec 
 
@@ -267,7 +276,9 @@ create procedure action_booking
 as 
 begin
 	declare @check int 
-	select @check= Room_status from [dbo].[Room] where @roomid = Room.room_id
+	if(@roomid like VN%)
+		begin
+				select @check= Room_status from [dbo].[Room] where @roomid = Room.room_id
 	if (@check=1)
 			exec addBooking @hotelid, @bookingid, @roomid, @customerid,
 		@checkindate ,
@@ -278,6 +289,39 @@ begin
 		begin 
 		print 'This room is not available'
 		end 
+		end 
+		
+		if(@roomid like US%)
+		begin
+				select @check= Room_status from [VIET].[bhv_hotelchain].[dbo].[Room] where Room.room_id =  @roomid
+	if (@check=1)
+			exec addBooking @hotelid, @bookingid, @roomid, @customerid,
+		@checkindate ,
+		@checkoutdate ,
+		@bookingtype ,
+		@totalpayment													
+	else 
+		begin 
+		print 'This room is not available'
+		end 
+		end 
+		
+		if(@roomid like UK%)
+		begin
+				select @check= Room_status from [HIEU].[bhv_hotelchain].[dbo].[Room] where Room.room_id =  @roomid
+	if (@check=1)
+			exec addBooking @hotelid, @bookingid, @roomid, @customerid,
+		@checkindate ,
+		@checkoutdate ,
+		@bookingtype ,
+		@totalpayment													
+	else 
+		begin 
+		print 'This room is not available'
+		end 
+		end 
+	
+	
 
 end
 
@@ -296,11 +340,36 @@ create procedure Pay
 	@totalpayment float
 as
 begin
-	update [dbo].[Booking]
+	if(@roomid like "VN%")
+		begin 
+		update [dbo].[Booking]
 	set total_payment  =  datediff(d, @checkindate, @checkoutdate) * (select R.room_price from [dbo].[Room] R join 
 															  Booking B on R.room_id = B.room_id) 
 	update Room
 	set room_status = 1
+	
+		end 
+		
+		if(@roomid like "US%")
+		begin 
+		update [VIET].[bhv_hotelchain].[dbo].[Booking]
+	set total_payment  =  datediff(d, @checkindate, @checkoutdate) * (select R.room_price from [VIET].[bhv_hotelchain].[dbo].[Room] R join 
+															  [VIET].[bhv_hotelchain].[dbo].Booking B on R.room_id = B.room_id) 
+	update [VIET].[bhv_hotelchain].[dbo].Room
+	set room_status = 1
+	
+		end 
+		
+		if(@roomid like "VN%")
+		begin 
+		update [HIEU].[bhv_hotelchain].[dbo].[dbo].[Booking]
+	set total_payment  =  datediff(d, @checkindate, @checkoutdate) * (select R.room_price from [HIEU].[bhv_hotelchain].[dbo].[Room] R join 
+															  [HIEU].[bhv_hotelchain].[dbo].Booking B on R.room_id = B.room_id) 
+	update   [HIEU].[bhv_hotelchain].[dbo].Room
+	set room_status = 1
+	
+		end 
+	
 end
 
 
@@ -326,19 +395,23 @@ insert into Customer (customer_id, customer_name, customer_mobile, customer_emai
 	values('3333333', 'Dao Minh Hieu', '15520249', 'dmhieu@gmail.com')
 
 --insert values for table Room
-
 insert into Room (hotel_id, room_id, room_type, room_status, room_price)
 	values ('VN_HCM', 'VN_HCM_001', 'normal', '1', '100')
 insert into Room (hotel_id, room_id, room_type, room_status, room_price)
 	values ('US_NY', 'US_NY_601', 'business', '1', '200')
 insert into Room (hotel_id, room_id, room_type, room_status, room_price)
-	values ('UK_LD', 'UK_LD_901', 'VIP', '1', '300')
+	values ('UK_LD', 'UK_LD_001', 'VIP', '1', '300')
 
 --insert values for table Booking
-
 insert into Booking (hotel_id, customer_id, room_id, booking_id, checkin_date, checkout_date, booking_type, total_payment)
 	values ('VN_HCM', '1111111', 'VN_HCM_001', '000000001', '05-31-2015', '06-06-2018', '')
 insert into Booking (hotel_id, customer_id, room_id, booking_id, checkin_date, checkout_date, booking_type, total_payment)
 	values ('US_NY', '2222222', 'US_NY_601', '000000002', '05-31-2015', '06-02-2018', '')
 insert into Booking (hotel_id, customer_id, room_id, booking_id, checkin_date, checkout_date, booking_type, total_payment)
 	values ('UK_LD', '3333333', 'UK_LD_001', '000000003', '05-31-2015', '06-05-2018', '')
+	
+	
+--checkpayment 
+exec 'VN_HCM', '1111111', 'VN_HCM_001', '000000001', '05-31-2015', '06-06-2018', ''
+exec 'US_NY', '2222222', 'US_NY_601', '000000002', '05-31-2015', '06-02-2018', ''
+exec 'UK_LD', '3333333', 'UK_LD_001', '000000003', '05-31-2015', '06-05-2018', ''
